@@ -1,0 +1,43 @@
+api:
+  dashboard: true
+
+accessLog: {}
+
+entryPoints:
+  http:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: "https"
+          scheme: "https"
+          permanent: true
+  https:
+    address: ":443"
+    http:
+      tls:
+        certresolver: cloudflare
+        domains:
+          - main: "joaopereira.ie"
+            sans: "*.joaopereira.ie"
+          - main: "local.joaopereira.ie"
+            sans: "*.local.joaopereira.ie"
+
+certificatesResolvers:
+  cloudflare:
+    acme:
+      storage: "acme.json"
+      dnsChallenge:
+        provider: "cloudflare"
+        delayBeforeCheck: 30
+        resolvers:
+          - "1.1.1.1:53"
+
+providers:
+  docker:
+    watch: true
+    network: "proxy"
+    exposedbydefault: true
+    endpoint: "unix:///var/run/docker.sock"
+  file:
+    filename: "traefik_services.yml"
