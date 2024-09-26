@@ -1,0 +1,19 @@
+services:
+  www.joaopereira.ie:
+    image: www.joaopereira.ie:latest
+    container_name: www.joaopereira.ie
+    build:
+      context: .
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.joaoportfolio.entrypoints=https"
+      - "traefik.http.routers.joaoportfolio.rule=Host(`local.joaopereira.ie`)"
+      - "traefik.http.services.joaoportfolio.loadbalancer.server.port=3000"
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true
+
