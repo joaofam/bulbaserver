@@ -31,6 +31,14 @@ This repository contains the configuration files and setup instructions for my p
 - **Reverse Proxy**: Traefik
 - **Domain**: joaopereira.ie (replace with your actual domain)
 
+## Lenovo M93 Tiny - Hardware Specifications
+
+- **Model:** Lenovo ThinkCentre M93 Tiny
+- **CPU:** Intel Core i5-4570T (Dual-Core, 2.90 GHz, Turbo Boost up to 3.60 GHz)
+- **RAM:** 8GB DDR3 1600 MHz
+- **Storage:** 256GB SSD (2.5" SATA III)
+- **Graphics:** Integrated Intel HD Graphics 4600
+
 ## Key Components
 
 1. **Traefik**: Acts as a reverse proxy and handles SSL termination.
@@ -46,12 +54,13 @@ Here's a list of services currently running or planned for the server:
 - [x] Personal Portfolio (NextJS application)
 - [ ] Nextcloud (File storage and collaboration)
 - [ ] Jellyfin (Media server)
-- [ ] Bitwarden (Password manager)
 - [ ] Syncthing (File synchronization)
 - [ ] Paperless-ngx (Document management system)
 - [ ] Grafana (Monitoring and analytics)
 - [x] Portainer (Docker management UI)
 - [ ] Pi-hole (Network-wide ad blocking)
 - [ ] Vaultwarden (Bitwarden server implementation)
+- [ ] qBittorrent (Bittorrent Client)
+- [ ] Homer (Static homepage for server)
 
 This project is open source and available under the [MIT License](LICENSE).
