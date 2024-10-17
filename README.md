@@ -50,7 +50,7 @@ Here's a list of services currently running or planned for the server:
 - [ ] Syncthing (File synchronization)
 - [ ] Paperless-ngx (Document management system)
 - [ ] Grafana (Monitoring and analytics)
-- [ ] Portainer (Docker management UI)
+- [x] Portainer (Docker management UI)
 - [ ] Pi-hole (Network-wide ad blocking)
 - [ ] Vaultwarden (Bitwarden server implementation)
 
