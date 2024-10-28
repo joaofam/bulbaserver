@@ -8,7 +8,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.joaoportfolio.entrypoints=https"
-      - "traefik.http.routers.joaoportfolio.rule=Host(`local.joaopereira.ie`)"
+      - "traefik.http.routers.joaoportfolio.rule=Host(`local.joaopereira.ie`) || Host(`www.joaopereira.ie`)"
       - "traefik.http.services.joaoportfolio.loadbalancer.server.port=3000"
     networks:
       - proxy
