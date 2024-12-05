@@ -1,9 +1,0 @@
-# Database credentials
-MYSQL_ROOT_PASSWORD=your_root_password
-MYSQL_PASSWORD=your_database_password
-
-# Nextcloud environment variables
-PUID=1000
-PGID=1000
-TZ=Europe/Dublin
-
