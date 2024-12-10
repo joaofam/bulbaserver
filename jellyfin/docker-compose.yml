@@ -7,9 +7,9 @@ services:
       - PGID=1000
       - TZ=Europe/Dublin
     volumes:
-      - /srv/jellyfin/config:/config  # Updated config path
-      - /srv/jellyfin/tvseries:/data/tvshows  # Updated TV series path
-      - /srv/jellyfin/movies:/data/movies  # Updated movies path
+      - /srv/jellyfin/config:/config
+      - /srv/jellyfin/tvseries:/data/tvshows
+      - /srv/jellyfin/movies:/data/movies
     ports:
       - 8096:8096
       - 8920:8920 # Optional for HTTPS
