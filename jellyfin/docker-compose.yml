@@ -27,6 +27,34 @@ services:
       - "traefik.http.routers.jellyfin.tls=true"
       - "traefik.http.routers.jellyfin.tls.certresolver=cloudflare"
 
+  transmission:
+    image: linuxserver/transmission:latest
+    container_name: transmission
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Dublin
+    volumes:
+      - /srv/transmission/config:/config
+      - /srv/downloads:/downloads
+      - /srv/jellyfin/tvseries:/tv
+      - /srv/jellyfin/movies:/movies
+    ports:
+      - 9091:9091  # Transmission Web UI
+      - 51413:51413  # Torrent Traffic
+      - 51413:51413/udp
+    restart: unless-stopped
+    networks:
+      - internal
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.transmission.entrypoints=https"
+      - "traefik.http.routers.transmission.rule=Host(`transmission.local.joaopereira.ie`)"
+      - "traefik.http.services.transmission.loadbalancer.server.port=9091"
+      - "traefik.http.routers.transmission.tls=true"
+      - "traefik.http.routers.transmission.tls.certresolver=cloudflare"
+
 networks:
   internal:
   proxy:
