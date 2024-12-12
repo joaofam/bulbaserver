@@ -55,6 +55,27 @@ services:
       - "traefik.http.routers.transmission.tls=true"
       - "traefik.http.routers.transmission.tls.certresolver=cloudflare"
 
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Dublin
+    volumes:
+      - /srv/radarr/config:/config
+      - /srv/downloads:/downloads  # Path where Transmission saves completed downloads
+      - /srv/jellyfin/movies:/movies  # Path to the movies directory
+    restart: unless-stopped
+    networks:
+      - proxy  # Only connects to the proxy network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.radarr.entrypoints=https"
+      - "traefik.http.routers.radarr.rule=Host(`radarr.local.joaopereira.ie`)"
+      - "traefik.http.services.radarr.loadbalancer.server.port=7878"
+      - "traefik.http.routers.radarr.tls=true"
+      - "traefik.http.routers.radarr.tls.certresolver=cloudflare"
 networks:
   internal:
   proxy:
