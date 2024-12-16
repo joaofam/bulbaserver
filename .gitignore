@@ -1,3 +1,1 @@
-traefik/.env
-nextcloud/.env
-jellyfin/.env
+.env

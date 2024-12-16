@@ -6,88 +6,84 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Dublin
+      - UMASK=002
     volumes:
       - /srv/jellyfin/config:/config
-      - /srv/jellyfin/tvseries:/data/tvshows
-      - /srv/jellyfin/movies:/data/movies
-    ports:
-      - 8096:8096
-      - 8920:8920 # Optional for HTTPS
-      - 7359:7359/udp # Optional
-      - 1900:1900/udp # Optional
+      - /srv/data/media/:/data/media/
     restart: unless-stopped
     networks:
-      - internal
       - proxy
+    devices: 
+      - /dev/dri:/dev/dri
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.jellyfin.entrypoints=https"
-      - "traefik.http.routers.jellyfin.rule=Host(`jellyfin.joaopereira.ie`)"
+      - "traefik.http.routers.jellyfin.rule=Host(`jellyfin.joaopereira.ie`) || Host(`jellyfin.local.joaopereira.ie`)"
       - "traefik.http.services.jellyfin.loadbalancer.server.port=8096"
-      - "traefik.http.routers.jellyfin.tls=true"
-      - "traefik.http.routers.jellyfin.tls.certresolver=cloudflare"
 
   transmission:
-    image: linuxserver/transmission:latest
+    image: haugene/transmission-openvpn
     container_name: transmission
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Dublin
+    cap_add:
+      - NET_ADMIN
     volumes:
       - /srv/transmission/config:/config
-      - /srv/downloads:/downloads
-      - /srv/jellyfin/tvseries:/tv
-      - /srv/jellyfin/movies:/movies
+      - /srv/data/torrents:/data
+    environment:
+      - OPENVPN_PROVIDER=NORDVPN
+      - OPENVPN_USERNAME=${OPENVPN_USERNAME}
+      - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
+      - NORDVPN_COUNTRY=DE
+      - NORDVPN_CATEGORY=legacy_p2p
+      - NORDVPN_PROTOCOL=tcp
+      - NORDVPN_SERVER=sg460.nordvpn.com
+      - LOCAL_NETWORK=192.168.1.0/24,172.19.0.0/24
+      - PUID=1000
+      - PGID=1000
+      - TRANSMISSION_WEB_UI=flood-for-transmission
     ports:
-      - 9091:9091  # Transmission Web UI
-      - 51413:51413  # Torrent Traffic
+      - 9091:9091
+      - 51413:51413
       - 51413:51413/udp
     restart: unless-stopped
     networks:
-      - internal
       - proxy
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.transmission.entrypoints=https"
       - "traefik.http.routers.transmission.rule=Host(`transmission.local.joaopereira.ie`)"
       - "traefik.http.services.transmission.loadbalancer.server.port=9091"
-      - "traefik.http.routers.transmission.tls=true"
-      - "traefik.http.routers.transmission.tls.certresolver=cloudflare"
 
   radarr:
-    image: lscr.io/linuxserver/radarr:latest
+    image: ghcr.io/hotio/radarr
     container_name: radarr
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Dublin
+      - UMASK=002
     volumes:
       - /srv/radarr/config:/config
-      - /srv/downloads:/downloads  # Path where Transmission saves completed downloads
-      - /srv/jellyfin/movies:/movies  # Path to the movies directory
-    restart: unless-stopped
+      - /srv/data:/data
     networks:
-      - proxy  # Only connects to the proxy network
+      - proxy
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.radarr.entrypoints=https"
       - "traefik.http.routers.radarr.rule=Host(`radarr.local.joaopereira.ie`)"
       - "traefik.http.services.radarr.loadbalancer.server.port=7878"
-      - "traefik.http.routers.radarr.tls=true"
-      - "traefik.http.routers.radarr.tls.certresolver=cloudflare"
 
   sonarr:
-    image: lscr.io/linuxserver/sonarr:latest
+    image: ghcr.io/hotio/sonarr
     container_name: sonarr
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Dublin
+      - UMASK=002
     volumes:
       - /srv/sonarr/config:/config
-      - /srv/downloads:/downloads
-      - /srv/jellyfin/tvseries:/tv
+      - /srv/data:/data
     restart: unless-stopped
     networks:
       - proxy
@@ -96,16 +92,15 @@ services:
       - "traefik.http.routers.sonarr.entrypoints=https"
       - "traefik.http.routers.sonarr.rule=Host(`sonarr.local.joaopereira.ie`)"
       - "traefik.http.services.sonarr.loadbalancer.server.port=8989"
-      - "traefik.http.routers.sonarr.tls=true"
-      - "traefik.http.routers.sonarr.tls.certresolver=cloudflare"
 
   prowlarr:
-    image: lscr.io/linuxserver/prowlarr:latest
+    image: ghcr.io/hotio/prowlarr
     container_name: prowlarr
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Dublin
+      - UMASK=002
     volumes:
       - /srv/prowlarr/config:/config
     restart: unless-stopped
@@ -116,36 +111,41 @@ services:
       - "traefik.http.routers.prowlarr.entrypoints=https"
       - "traefik.http.routers.prowlarr.rule=Host(`prowlarr.local.joaopereira.ie`)"
       - "traefik.http.services.prowlarr.loadbalancer.server.port=9696"
-      - "traefik.http.routers.prowlarr.tls=true"
-      - "traefik.http.routers.prowlarr.tls.certresolver=cloudflare"
 
   jellyseerr:
-    image: fallenbagel/jellyseerr:latest
+    image: ghcr.io/hotio/jellyseerr
     container_name: jellyseerr
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Dublin
-      - JELLYFIN_URL=http://jellyfin:8096
-      - JELLYFIN_API_KEY=${JELLYFIN_API_KEY}
-    ports:
-      - 5055:5055
+      - UMASK=002
     volumes:
-      - /srv/jellyseerr/config:/app/config
+      - /srv/jellyseerr/config:/config
     restart: unless-stopped
     networks:
       - proxy
-      - internal
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.jellyseerr.entrypoints=https"
-      - "traefik.http.routers.jellyseerr.rule=Host(`jellyseerr.joaopereira.ie`)"
+      - "traefik.http.routers.jellyseerr.rule=Host(`jellyseerr.joaopereira.ie`) || Host(`jellyseerr.local.joaopereira.`)"
       - "traefik.http.services.jellyseerr.loadbalancer.server.port=5055"
-      - "traefik.http.routers.jellyseerr.tls=true"
-      - "traefik.http.routers.jellyseerr.tls.certresolver=cloudflare"
+
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_HTML=${LOG_HTML:-false}
+      - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
+      - TZ=Europe/London
+    ports:
+      - "${PORT:-8191}:8191"
+    restart: unless-stopped
+    networks: 
+    - proxy
 
 networks:
-  internal:
   proxy:
     external: true
 
