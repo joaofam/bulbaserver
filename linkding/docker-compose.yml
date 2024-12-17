@@ -1,0 +1,21 @@
+services:
+  linkding:
+    image: sissbruecker/linkding:latest
+    container_name: linkding
+    environment:
+      - TZ=Europe/Dublin
+      - LD_HOST_PORT=9090
+    volumes:
+      - /srv/linkding/data:/etc/linkding/data
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.linkding.entrypoints=https"
+      - "traefik.http.routers.linkding.rule=Host(`linkding.local.joaopereira.ie`)"
+      - "traefik.http.services.linkding.loadbalancer.server.port=9090"
+    restart: unless-stopped
+
+networks:
+  proxy:
+    external: true
