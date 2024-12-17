@@ -1,0 +1,52 @@
+services:
+  vikunja:
+    image: vikunja/vikunja
+    container_name: vikunja
+    environment:
+      - VIKUNJA_SERVICE_PUBLICURL=https://vikunja.local.joaopereira.ie
+      - VIKUNJA_DATABASE_HOST=db
+      - VIKUNJA_DATABASE_TYPE=mysql
+      - VIKUNJA_DATABASE_USER=vikunja
+      - VIKUNJA_DATABASE_PASSWORD=changeme
+      - VIKUNJA_DATABASE_DATABASE=vikunja
+      - VIKUNJA_SERVICE_JWTSECRET=supersecuresecret
+    volumes:
+      - /srv/vikunja/files:/app/vikunja/files
+    networks:
+      - proxy
+      - vikunja-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.vikunja.entrypoints=https"
+      - "traefik.http.routers.vikunja.rule=Host(`vikunja.local.joaopereira.ie`)"
+      - "traefik.http.services.vikunja.loadbalancer.server.port=3456"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: mariadb:10
+    container_name: vikunja-db
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      - MYSQL_ROOT_PASSWORD=supersecret
+      - MYSQL_USER=vikunja
+      - MYSQL_PASSWORD=changeme
+      - MYSQL_DATABASE=vikunja
+    volumes:
+      - /srv/vikunja/db:/var/lib/mysql
+    networks:
+      - vikunja-network
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u $$MYSQL_USER --password=$$MYSQL_PASSWORD"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+networks:
+  proxy:
+    external: true
+  vikunja-network:
+    driver: bridge
