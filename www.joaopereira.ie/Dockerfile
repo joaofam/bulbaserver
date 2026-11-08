@@ -1,4 +1,4 @@
-FROM node:18-alpine AS base
+FROM node:20-alpine AS base
 # Install Git
 RUN apk add --no-cache git
 
@@ -17,7 +17,7 @@ RUN git clone $REPO_URL . && \
 RUN \
   if [ -f yarn.lock ]; then yarn install --frozen-lockfile; \
   elif [ -f package-lock.json ]; then npm ci; \
-  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i --frozen-lockfile; \
+  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && corepack prepare pnpm@9.15.0 --activate && pnpm i --frozen-lockfile; \
   else echo "No lockfile found. Installing dependencies with npm." && npm install; \
   fi
 
@@ -34,7 +34,7 @@ COPY --from=deps /app ./
 RUN \
   if [ -f yarn.lock ]; then yarn run build; \
   elif [ -f package-lock.json ]; then npm run build; \
-  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm run build; \
+  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && corepack prepare pnpm@9.15.0 --activate && pnpm run build; \
   else npm run build; \
   fi
 

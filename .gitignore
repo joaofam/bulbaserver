@@ -1,1 +1,9 @@
 .env
+traefik/acme.json
+acme.json
+.env
+*.sqlite
+*.pem
+*.key
+homepage/homarr/data/
+homepage/homarr/configs/

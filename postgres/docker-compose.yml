@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:14-alpine
+    ports:
+      - 5432:5432
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres            # Default username
+      POSTGRES_PASSWORD: postgres123      # Default password (use a simple password for testing)
+      POSTGRES_DB: mydatabase             # Default database name
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.postgres.rule=Host(`postgres.local.joaopereira.ie`)"
+      - "traefik.http.routers.postgres.entrypoints=https"
+      - "traefik.http.services.postgres.loadbalancer.server.port=5432"
+
